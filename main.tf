@@ -3,7 +3,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment  = "Test-bt STG"
-      Tagged-to-be = "Example-tags bt STG"
+      Tagged-to-be = "Example-tags bt STG ... "
     }
   }
 }
