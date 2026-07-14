@@ -49,9 +49,20 @@ jobs:
             mkdir -p ~/.ssh
             echo "${{secrets.SSH_PRIVATE_KEY_101}}" > ~/.ssh/myKeys
             chmod 600 ~/.ssh/myKeys
-            for ip in $(terraform output -json public_ips | jq -r ".[]"); do
-            ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+
+      - name: Configure known_hosts
+        run: |
+          for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+            echo "Waiting for SSH on $ip..."
+            for i in {1..10}; do
+              if timeout 5 ssh-keyscan -H "$ip" >> ~/.ssh/known_hosts 2>/dev/null; then
+                echo "  $ip is ready"
+                break
+              fi
+              echo "  retry $i/10..."
+              sleep 5
             done
+          done
 
       - name: install nginx on ec2
         run: |
