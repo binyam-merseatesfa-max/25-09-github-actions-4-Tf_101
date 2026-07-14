@@ -12,7 +12,7 @@ variable "instance_type" {
 variable "instance_count" {
   description = "The EC2 instance count"
   type        = number
-  default     = 1
+  default     = 3
 
   validation {
     condition     = (var.instance_count >= 0)
