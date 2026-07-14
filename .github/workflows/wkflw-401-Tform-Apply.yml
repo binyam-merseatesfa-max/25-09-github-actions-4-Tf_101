@@ -1,6 +1,6 @@
 name: Terraform +GitHub Actions Docker-Website deploy
 
-on: [push,workflow_dispatch]
+on: [workflow_dispatch]
 
 jobs:
   Apply-Terraform:
@@ -45,7 +45,6 @@ jobs:
 
       - name: ssh setup
         run: |
-          sleep 35
             mkdir -p ~/.ssh
             echo "${{secrets.SSH_PRIVATE_KEY_101}}" > ~/.ssh/myKeys
             chmod 600 ~/.ssh/myKeys
