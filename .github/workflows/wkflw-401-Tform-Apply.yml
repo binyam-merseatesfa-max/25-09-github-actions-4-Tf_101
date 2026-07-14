@@ -55,15 +55,11 @@ jobs:
             ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo cp /home/ubuntu/index.html /var/www/html/index.html"
             done
 
-Terraform-destroy:
+  Terraform-destroy:
         runs-on: ubuntu-latest
         if: github.event_name == 'workflow_dispatch'
-        steps:   
-           - name: Bye test
-              run: |
-              echo "Bye bye 202 test call, running by ... workflow_dispatch!"
-              date
 
+        steps:   
            - name: Checkout
              uses: actions/checkout@v7
       
