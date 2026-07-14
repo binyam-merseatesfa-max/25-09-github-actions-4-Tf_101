@@ -32,9 +32,19 @@ jobs:
       - name: Terraform Apply
         run: terraform apply --auto-approve
 
+      - name: Ensure jq is installed
+        run: |
+          if ! command -v jq &> /dev/null; then
+            echo "jq not found, installing..."
+            sudo apt-get update -y
+            sudo apt-get install -y jq
+          else
+            echo "jq already installed: $(jq --version)"
+          fi
+
       - name: ssh setup
         run: |
-          sleep 15
+          sleep 35
             mkdir -p ~/.ssh
             echo "${{secrets.SSH_PRIVATE_KEY_101}}" > ~/.ssh/myKeys
             chmod 600 ~/.ssh/myKeys
