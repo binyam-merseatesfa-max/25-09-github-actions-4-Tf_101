@@ -13,7 +13,7 @@ resource "aws_instance" "instanz-201" {
   ami           = "ami-0303e2e4a29f041a3"
   instance_type = var.instance_type
   key_name      = "keyP1"
-  security_groups = [sg-083cc6502821a7547] 
+  vpc_security_group_ids = ["sg-083cc6502821a7547"]
   tags = {
     Name = "mySTG-EC2-instanz"
   }
