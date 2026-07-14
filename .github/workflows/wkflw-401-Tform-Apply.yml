@@ -40,6 +40,7 @@ jobs:
             sudo apt-get install -y jq
           else
             echo "jq already installed: $(jq --version)"
+            echo "ips = $(terraform output -json public_ips | jq -r ".[]")"
           fi
 
       - name: ssh setup
