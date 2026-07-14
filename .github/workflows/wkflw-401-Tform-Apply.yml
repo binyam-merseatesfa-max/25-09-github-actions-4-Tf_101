@@ -1,4 +1,4 @@
-name: Terraform +GitHub Actions Docker-Website deploy
+name: Terraform Apply GitHub-Actions Docker-Website deploy
 
 on: [workflow_dispatch]
 
