@@ -5,6 +5,8 @@ on: [push,workflow_dispatch]
 jobs:
   Apply-Terraform:
     runs-on: ubuntu-latest
+
+    if: github.event_name == 'push'
     steps:
       - name: Hi test
         run: |
@@ -23,3 +25,60 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+      
+      - name: Terraform Init
+        run: terraform init
+            
+      - name: Terraform Apply
+        run: terraform apply --auto-approve
+
+      - name: ssh setup
+        run: |
+          sleep 15
+            mkdir -p ~/.ssh
+            echo "${{secrets.SSH_PRIVATE_KEY_101}}" > ~/.ssh/myKeys
+            chmod 600 ~/.ssh/myKeys
+            for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+            ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+            done
+
+      - name: install nginx on ec2
+        run: |
+            for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo apt update && sudo apt install nginx -y"
+            done
+
+      - name: deploy website
+        run: |
+            for ip in $(terraform output -json public_ips | jq -r ".[]"); do
+            scp -i ~/.ssh/myKeys index.html ubuntu@$ip:/home/ubuntu/index.html
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo cp /home/ubuntu/index.html /var/www/html/index.html"
+            done
+
+Terraform-destroy:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'workflow_dispatch'
+        steps:   
+           - name: Bye test
+              run: |
+              echo "Bye bye 202 test call, running by ... workflow_dispatch!"
+              date
+
+           - name: Checkout
+             uses: actions/checkout@v7
+      
+           - name: Setup Terraform
+             uses: hashicorp/setup-terraform@v4
+      
+           - name: Configure AWS Credentials
+             uses: aws-actions/configure-aws-credentials@v6
+             with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: eu-central-1
+      
+           - name: Terraform Init
+             run: terraform init
+            
+           - name: Terraform Apply
+             run: terraform destroy --auto-approve    
