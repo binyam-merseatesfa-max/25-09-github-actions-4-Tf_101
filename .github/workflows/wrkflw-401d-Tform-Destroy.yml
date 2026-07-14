@@ -3,7 +3,7 @@ name: Cleanup-Terraform +GitHub Actions resources
 on: workflow_dispatch
 
 jobs:
-  Destroy-Terraform_(Infra-Cleanup):
+  Destroy-Terraform_Infra-Cleanup:
         runs-on: ubuntu-latest
         steps:   
            - name: Bye test
