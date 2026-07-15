@@ -1,6 +1,6 @@
 name: Terraform Apply GitHub-Actions Docker-Website deploy
 
-on: [workflow_dispatch]
+on: [push,workflow_dispatch]
 
 jobs:
   Apply-Terraform:
@@ -77,17 +77,21 @@ jobs:
             exit 1
           fi
 
-      - name: install nginx on ec2
+      - name: install docker on ec2 & extend user recht on Docker
         run: |
             for ip in $(terraform output -json public_ips | jq -r ".[]"); do
-            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo apt update && sudo apt install nginx -y"
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo apt update && sudo apt install docker.io -y"
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo usermod -aG docker ubuntu"
             done
 
       - name: deploy website
         run: |
             for ip in $(terraform output -json public_ips | jq -r ".[]"); do
-            scp -i ~/.ssh/myKeys index.html ubuntu@$ip:/home/ubuntu/index.html
-            ssh -i ~/.ssh/myKeys ubuntu@$ip "sudo cp /home/ubuntu/index.html /var/www/html/index.html"
+            scp -i ~/.ssh/myKeys -r Frontend ubuntu@$ip:/home/ubuntu/
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "docker build -t bt501-frontend-image /home/ubuntu/Frontend"
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "docker stop bt501-fe-container || true"
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "docker rm bt501-fe-container || true"
+            ssh -i ~/.ssh/myKeys ubuntu@$ip "docker run -d -p 80:80 --name bt501-fe-container bt501-frontend-image"
             done
 
   Terraform-say-hi-bye:
