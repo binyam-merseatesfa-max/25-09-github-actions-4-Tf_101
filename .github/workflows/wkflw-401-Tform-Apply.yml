@@ -13,6 +13,14 @@ jobs:
           echo "Hi 202 test call, running by push ..."
           date
 
+      - name: Post a message in channel (25-09-bt)
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL_201_BT }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "... tf Apply Pipeline started by ${{github.actor}}. Pipeline : ${{github.workflow}} ..🚀"
+
       - name: Checkout
         uses: actions/checkout@v7
       
@@ -93,6 +101,25 @@ jobs:
             ssh -i ~/.ssh/myKeys ubuntu@$ip "docker rm bt501-fe-container || true"
             ssh -i ~/.ssh/myKeys ubuntu@$ip "docker run -d -p 80:80 --name bt501-fe-container bt501-frontend-image"
             done
+
+      - name: Post a message in channel (25-09-bt)
+        if: ${{ success()}}
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL_201_BT }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "✅ tf Apply/Deploy Pipeline successfull done! run by ${{github.actor}}. Pipeline : ${{github.workflow}}"  
+            
+      - name: Post a message in channel (25-09-bt)
+        if: ${{ failure()}}
+        uses: slackapi/slack-github-action@v3.0.3
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL_201_BT }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "❌ tf Apply/Deploy Pipeline failed. Please review & FIX ASAP !!!."        
+
 
   Terraform-say-hi-bye:
         runs-on: ubuntu-latest
