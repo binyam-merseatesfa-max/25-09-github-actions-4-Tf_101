@@ -29,3 +29,21 @@ jobs:
             
            - name: Terraform Destroy
              run: terraform destroy --auto-approve    
+
+           - name: Post a message in channel (25-09-bt)
+             if: ${{ success()}}
+             uses: slackapi/slack-github-action@v3.0.3
+             with:
+                  webhook: ${{ secrets.SLACK_WEBHOOK_URL_201_BT }}
+                  webhook-type: incoming-webhook
+                  payload: |
+                        text: "✅ tf Destroy/Clean-up Pipeline successfull done! run by ${{github.actor}}. Pipeline : ${{github.workflow}}"  
+            
+           - name: Post a message in channel (25-09-bt)
+             if: ${{ failure()}}
+             uses: slackapi/slack-github-action@v3.0.3
+             with:
+              webhook: ${{ secrets.SLACK_WEBHOOK_URL_201_BT }}
+              webhook-type: incoming-webhook
+              payload: |
+                      text: "❌ tf Destroy/Clean-up Pipeline failed. Please review & FIX ASAP !!!."        
